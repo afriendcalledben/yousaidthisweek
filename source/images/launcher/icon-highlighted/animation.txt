@@ -1,0 +1,2 @@
+loopCount = 0
+frames = 1x10, 2, 1, 2

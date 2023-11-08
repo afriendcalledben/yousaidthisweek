@@ -1,0 +1,10 @@
+name=you said this week
+author=Ben & Al
+description=Back and forth with minimal changes.
+bundleID=com.benandal.yousaidthisweek
+version=0.1
+buildNumber=113
+imagePath=images/launcher/
+launchSoundPath=audio/whatsapp.wav
+pdxversion=20000
+buildtime=752782623
