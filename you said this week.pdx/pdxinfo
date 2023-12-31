@@ -6,3 +6,5 @@ version=0.1
 buildNumber=114
 imagePath=images/launcher/
 launchSoundPath=audio/whatsapp.wav
+pdxversion=20100
+buildtime=757375362

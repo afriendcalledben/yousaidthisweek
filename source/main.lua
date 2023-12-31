@@ -3,14 +3,22 @@ import "CoreLibs/graphics"
 import "CoreLibs/sprites"
 import "CoreLibs/timer"
 
+import 'Lib/SpriteContainer'
+import 'Lib/SpriteContainerView' 
+
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
-local popped = 0
+local state = 0
 local cPos = 0
+local cPos2 = -150
 -- Audio 
 local synth = pd.sound.synth.new(pd.sound.kWaveTriangle)
 local popSnd = pd.sound.sampleplayer.new( "audio/balloon_pop.wav" )
+
+local botty = true
+local rotation = 0
+-- local container = SpriteContainer(300, 120, sprite1, sprite2, sprite3)
 
 function init()
     -- New York skyline
@@ -36,6 +44,10 @@ function init()
     assert(popImg)
     popSpr = gfx.sprite.new(popImg)
     popSpr:moveTo(200,120)
+
+    -- local container = SpriteContainer(300, 120, topImg, bottomImg)
+    -- assert(container)
+    
 end
 
 init()
@@ -43,8 +55,11 @@ init()
 function pd.update()
     gfx.clear()
     synth:stop()
-    -- Has the head popped
-    if (popped == 0)
+    
+
+    -------------------- STATE 0 -------------------- head goes up
+
+    if (state == 0) -- initial state, whereby the crank is used to move the head up
     then
         -- If the crank is docked, reduce the head position until it reaches 0
         if (pd.isCrankDocked())
@@ -65,48 +80,120 @@ function pd.update()
             then
                 -- If it goes higher, the pop the head
                 cPos = 3804
-                popped = 1
+                bottomSprEndPos = bottomSpr:getPosition()
+                state = 1
             else
                 cPos = cPos + c
             end
         end
+        
         if (cPos > 0)
         then
             -- If head position is more than 0, play a synth note representing the height. 
             synth:playNote((cPos/5), 0.5)
         end
+       
         if (bgSpr)
         then
             bgSpr:moveTo(200,-260+(cPos/5))
         end
+       
         if (topSpr)
         then
-            topSpr:setClipRect(0, 0, 400,100+cPos)
+            local newTopPos = 100+cPos
+            -- print(newTopPos)
+            topSpr:setClipRect(0, 0, 400,newTopPos)
         end
+        
         if (bottomSpr)
         then
             bottomSpr:moveTo(200,170+cPos)
         end
+        
+       
         gfx.sprite.update()
-        -- Add a legend showing forehead height
-        gfx.setColor(gfx.kColorWhite)
-        gfx.fillRoundRect(5, 5, 185, 25, 5)
-        gfx.setColor(gfx.kColorBlack)
-        gfx.drawTextInRect("*FOREHEAD* "..(tonumber(string.format("%.1f", cPos/2))+12).."cm", 10, 10, 180, 20)
-    elseif (popped == 1)
+        DrawLegend()
+ 
+
+
+    -------------------- STATE 1 --------------------
+        
+    elseif (state == 1)
     then
-        -- if head popped, remove both head graphics and add pop graphic
-        topSpr:remove()
-        bottomSpr:remove()
-        popSpr:add()
+        local c, ac = pd.getCrankChange()
+        -- bgSpr:moveTo(200,-260+(cPos/5))
+        cPos = cPos + c
+      
+
+
+        bottomSpr:moveTo(200,bottomSprEndPos-cPos2)
+        local newTopPos = 100-cPos2
+        
+  
+        topSpr:setClipRect(0, 0, 400, 150-21-cPos2)
+        
+        local _, y = bottomSpr:getPosition()
+
+        cPos2 += c
+
+        if(y <= 170)
+        then 
+            bottomSpr:moveTo(200,170)
+            topSpr:setClipRect(0, 0, 400, 100)
+            state = 2
+        -- else
+            -- bottomSpr:moveTo(200,bottomSprEndPos-cPos2)
+            -- topSpr:setClipRect(0, 0, 400, 150-cPos2)
+        end
+
+
+
+
+
         gfx.sprite.update()
-        -- play pop sound
-        popSnd:play()
-        popped = 2
-    elseif (popped == 2)
+ 
+        -- -- if head state, remove both head graphics and add pop graphic
+        -- topSpr:remove()
+        -- bottomSpr:remove()
+        -- popSpr:add()
+        -- gfx.sprite.update()
+        -- -- play pop soundx   
+        -- popSnd:play()
+        -- state = 2
+        -- state = 2
+
+    -------------------- STATE 2 --------------------
+
+    elseif (state == 2)
+    then
+        local c, ac = pd.getCrankChange()
+        rotation += c
+        -- bottomSpr:setRotation(rotation)
+
+        gfx.sprite.update()
+        -- if head state, remove both head graphics and add pop graphic
+        -- topSpr:remove()
+        -- bottomSpr:remove()
+        -- popSpr:add()
+        -- gfx.sprite.update()
+        -- -- play pop sound
+        -- popSnd:play()
+        -- state = 3
+
+
+    -------------------- STATE 3 --------------------
+
+    elseif (state == 3)
     then
         gfx.sprite.update()
     end
-
-    
 end
+
+
+function DrawLegend()
+    gfx.setColor(gfx.kColorWhite)
+    gfx.fillRoundRect(5, 5, 185, 25, 5)
+    gfx.setColor(gfx.kColorBlack)
+    gfx.drawTextInRect("*FOREHEAD* "..(tonumber(string.format("%.1f", cPos*10))+12).."cm", 10, 10, 180, 20)
+end
+

@@ -1,13 +1,25 @@
+// {
+//   "configurations": [
+//     {
+//       "type": "node",
+//       "request": "launch",
+//       "name": "Launch",
+//       "program": "${workspaceFolder}/.vscode/run.js",
+//       "preLaunchTask": "build",
+//       "internalConsoleOptions": "neverOpen",
+//       "env": { "PLAYDATE_OUTPUT" : "${config:playdate.output}" }
+//     }
+//   ]
+// }
+
 {
+  "version": "0.2.0",
   "configurations": [
     {
-      "type": "node",
+      "type": "playdate",
       "request": "launch",
-      "name": "Launch",
-      "program": "${workspaceFolder}/.vscode/run.js",
-      "preLaunchTask": "build",
-      "internalConsoleOptions": "neverOpen",
-      "env": { "PLAYDATE_OUTPUT" : "${config:playdate.output}" }
+      "name": "Playdate: Debug",
+      "preLaunchTask": "${defaultBuildTask}"
     }
   ]
 }
