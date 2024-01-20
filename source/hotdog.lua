@@ -11,12 +11,11 @@ local HotdogType = {
     Small = 2
 }
 
-
 class('Hotdog').extends(pd.graphics.sprite)
 
 function Hotdog:init(x, y, type, speed, name)
     local hotdogImg
-    if type == HotdogType.Regular then
+    if type == HotdogType.Big then
         hotdogImg = gfx.image.new('images/hotdog.png')
     elseif type == HotdogType.Small then
         hotdogImg = gfx.image.new('images/hotdog_small.png')
@@ -37,11 +36,9 @@ function Hotdog:descendBy(y)
 end
 
 function Hotdog:collisionResponse(other)
-
     if type(other.death) == "function" then
         other:death()
     end
-
 end
 
 function Hotdog:update()

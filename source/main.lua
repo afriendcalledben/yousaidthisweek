@@ -11,18 +11,20 @@ local HotdogType = hotdogModule.HotdogType
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
-local state = 0
+-- local gameState.value = 0
+local gameState = { value = 0 }
+
 local cPos = 0
 local cPos2 = -150
 local synth = pd.sound.synth.new(pd.sound.kWaveTriangle)
-local hx = 200
-local hy = -300
-local hc = 0
+-- local hx = 200
+-- local hy = -300
+-- local hc = 0
 
-local bool popped = false
+local bool
+popped = false
 
 function init()
-    print("init")
     -- New York skyline
     local bgImg = gfx.image.new('images/background_nyc.png')
     assert(bgImg)
@@ -30,12 +32,23 @@ function init()
     skySpr:moveTo(200, -260)
     skySpr:add()
 
+
+    -- Deep Space BG
+    local deepSpaceImg = gfx.image.new('images/deepSpace.png')
+    assert(deepSpaceImg)
+    deepSpaceSpr = gfx.sprite.new(deepSpaceImg)
+    deepSpaceSpr:moveTo(200, -260 + 2000)
+    deepSpaceSpr:add()
+
     -- Space BG
     local spaceImg = gfx.image.new('images/space.png')
+    -- local spaceImg = gfx.image.new('images/deepSpace.png')
     assert(spaceImg)
     spaceSpr = gfx.sprite.new(spaceImg)
     spaceSpr:moveTo(200, -260 + 1000)
     spaceSpr:add()
+
+
 
     -- Top of Al's head
     local topImg = gfx.image.new('images/al_top.png')
@@ -56,9 +69,8 @@ function init()
     popSpr = gfx.sprite.new(popImg)
     popSpr:moveTo(200, 120)
 
-
     -- Ben
-    ben = Ben(200,2000, popSpr)
+    ben = Ben(200, 2000, popSpr, gameState)
     ben:add()
 
     -- Bottom of Al's head
@@ -93,44 +105,36 @@ function init()
     hotdog8 = Hotdog(200, -3400, HotdogType.Small, 16, "h8")
     hotdog8:add()
 
-    hotdog9 = Hotdog(200, -3600, HotdogType.Small, 20, "h9")
+    hotdog9 = Hotdog(200, -4000, HotdogType.Small, 20, "h9")
     hotdog9:add()
 
-    hotdog9 = Hotdog(200, -4000, HotdogType.Small, 22, "h10")
-    hotdog9:add()
+    hotdog10 = Hotdog(200, -4400, HotdogType.Small, 22, "h10")
+    hotdog10:add()
 
-    hotdog9 = Hotdog(200, -4400, HotdogType.Small, 24, "h11")
-    hotdog9:add()
+    hotdog11 = Hotdog(200, -4800, HotdogType.Small, 24, "h11")
+    hotdog11:add()
 
-    hotdog9 = Hotdog(200, -4800, HotdogType.Small, 26, "h12")
-    hotdog9:add()
+    hotdog12 = Hotdog(200, -5100, HotdogType.Small, 28, "h12")
+    hotdog12:add()
 
-    hotdog9 = Hotdog(200, -5200, HotdogType.Small, 28, "h13")
-    hotdog9:add()
+    hotdog13 = Hotdog(200, -5400, HotdogType.Small, 32, "h13")
+    hotdog13:add()
 
-    hotdog9 = Hotdog(200, -5600, HotdogType.Small, 30, "h14")
-    hotdog9:add()
-
-    
-
+    hotdog14 = Hotdog(200, -5700, HotdogType.Big, 38, "h14")
+    hotdog14:add()
 end
 
 init()
 
 function pd.update()
-
     PlaySinWave()
 
-    gfx.clear()
+    gfx.clear(gfx.kColorBlack)
     synth:stop()
-    -- sin = math.sin(pd.getElapsedTime()) -- used for sound later
-
-
-
 
     -------------------- STATE 0 -------------------- forehead goes up, background scrolls
 
-    if (state == 0) -- initial state, whereby the crank is used to move the head up
+    if (gameState.value == 0) -- initial state, whereby the crank is used to move the head up
     then
         -- If the crank is docked, reduce the head position until it reaches 0
         if (pd.isCrankDocked())
@@ -152,7 +156,7 @@ function pd.update()
                 -- reach the top of this section, move to the next
                 cPos = 3804
                 bottomSprEndPos = bottomSpr:getPosition()
-                state = 1
+                gameState.value = 1
             else
                 cPos = cPos + c
             end
@@ -181,14 +185,11 @@ function pd.update()
             bottomSpr:moveTo(200, 170 + cPos)
         end
 
-
         gfx.sprite.update()
         DrawLegend()
 
-
-
         -------------------- STATE 1 -------------------- background stops, my face comes back up
-    elseif (state == 1)
+    elseif (gameState.value == 1)
     then
         local c, ac = pd.getCrankChange()
         -- bgSpr:moveTo(200,-260+(cPos/5))
@@ -209,33 +210,20 @@ function pd.update()
         then
             bottomSpr:moveTo(200, 170)
             topSpr:setClipRect(0, 0, 400, 100)
-            state = 2
+            gameState.value = 2
         end
 
-
-        -- synth:playNote((cPos / 5), 0.5)
-       
         PlaySinWave()
         gfx.sprite.update()
 
-        -- -- if head state, remove both head graphics and add pop graphic
-        -- topSpr:remove()
-        -- bottomSpr:remove()
-        -- popSpr:add()
-        -- gfx.sprite.update()
-        -- -- play pop soundx
-        -- popSnd:play()
-        -- state = 2
-        -- state = 2
-
         -------------------- STATE 2 -------------------- my forehead leaves frame
-    elseif (state == 2)
+    elseif (gameState.value == 2)
     then
         local c, ac = pd.getCrankChange()
 
         topSpr:remove()
         topSprCropped:add()
-        ben:moveTo(200,120)
+        ben:moveTo(200, 120)
 
         topSprCropped:moveBy(0, -c)
         -- local l = topSprCropped:getPosition()
@@ -247,37 +235,38 @@ function pd.update()
 
         if (y < -10)
         then
-            state = 3
+            gameState.value = 3
         end
 
         PlaySinWave()
         gfx.sprite.update()
 
-        -------------------- STATE 3 -------------------- configure for state 4
-    elseif (state == 3)
+        -------------------- STATE 3 -------------------- configure for state 4, only runs once the goes straight to state 4
+    elseif (gameState.value == 3)
     then
         local c, ac = pd.getCrankChange()
         local _, skyY = skySpr:getPosition()
-        spaceSpr:moveTo(200,skyY-1000)        
+        spaceSpr:moveTo(200, skyY - 1000)
+        deepSpaceSpr:moveTo(200, skyY - 2000)
         hc = 0
-        state = 4
+        gameState.value = 4
 
         PlaySinWave()
         gfx.sprite.update()
     end
 
-    -------------------- STATE 4 -------------------- 
-    -- went straight from state 3 to state 4 so i used if instead if elseif
+    -------------------- STATE 4 --------------------
+    -- went straight from state 3 to state 4 so i used 'if', not 'elseif'
 
-    if (state == 4) 
+    if (gameState.value == 4)
     then
-        
         local c, ac = pd.getCrankChange()
         hc += c
-        skySpr:moveBy(0, c/5)
-        spaceSpr:moveBy(0, c/5)
+        skySpr:moveBy(0, c / 5)
+        spaceSpr:moveBy(0, c / 5)
+        deepSpaceSpr:moveBy(0, c / 5)
         bottomSpr:moveBy(0, c)
-        
+
         -- Must be a better way to call this method on all the hotdogs
         hotdog1:descendBy(c)
         hotdog2:descendBy(c)
@@ -288,20 +277,25 @@ function pd.update()
         hotdog7:descendBy(c)
         hotdog8:descendBy(c)
         hotdog9:descendBy(c)
+        hotdog10:descendBy(c)
+        hotdog11:descendBy(c)
+        hotdog12:descendBy(c)
+        hotdog13:descendBy(c)
+        hotdog14:descendBy(c)
+
+
 
         PlaySinWave()
 
         gfx.sprite.update()
     end
 
-    if(state == 5)
+    if (gameState.value == 5)
     then
-        ben.remove()
-        popSpr:add()
-        PlaySinWave()
+        -- Nothing else happens
+
         gfx.sprite.update()
     end
-
 end
 
 function DrawLegend()
@@ -312,9 +306,9 @@ function DrawLegend()
 end
 
 function PlaySinWave()
-    if(popped == false)
+    if (popped == false)
     then
-        sin = math.sin(pd.getElapsedTime()*2)
+        sin = math.sin(pd.getElapsedTime() * 2)
         sin = map(sin, -1, 1, 10, 100)
         synth:playNote((sin), 0.5)
     end
@@ -323,4 +317,3 @@ end
 function map(value, low, high, newLow, newHigh)
     return newLow + (value - low) * (newHigh - newLow) / (high - low)
 end
-
