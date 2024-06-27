@@ -36,6 +36,10 @@ function Ben:death()
         self.popSpr:add()
         alive = false
         self.state.value = 5
+        pd.timer.performAfterDelay(2000, function()
+            print("restart")
+            pd.restart()
+        end)
         -- self:remove()
     end
 end

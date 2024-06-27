@@ -24,6 +24,16 @@ local synth = pd.sound.synth.new(pd.sound.kWaveTriangle)
 local bool
 popped = false
 
+local menu = playdate.getSystemMenu()
+
+local menuItem, error = menu:addMenuItem("Restart", function()
+    restartGame()
+end)
+
+function restartGame()
+    pd.restart()
+end
+
 function init()
     -- New York skyline
     local bgImg = gfx.image.new('images/background_nyc.png')
@@ -122,6 +132,7 @@ function init()
 
     hotdog14 = Hotdog(200, -5700, HotdogType.Big, 38, "h14")
     hotdog14:add()
+
 end
 
 init()
@@ -129,11 +140,10 @@ init()
 function pd.update()
     PlaySinWave()
 
-    gfx.clear(gfx.kColorBlack)
+    --gfx.clear(gfx.kColorBlack)
     synth:stop()
 
     -------------------- STATE 0 -------------------- forehead goes up, background scrolls
-
     if (gameState.value == 0) -- initial state, whereby the crank is used to move the head up
     then
         -- If the crank is docked, reduce the head position until it reaches 0
@@ -204,7 +214,7 @@ function pd.update()
 
         local _, y = bottomSpr:getPosition()
 
-        cPos2 += c
+        cPos2 = cPos2 + c
 
         if (y <= 170)
         then
@@ -261,7 +271,7 @@ function pd.update()
     if (gameState.value == 4)
     then
         local c, ac = pd.getCrankChange()
-        hc += c
+        hc = hc + c
         skySpr:moveBy(0, c / 5)
         spaceSpr:moveBy(0, c / 5)
         deepSpaceSpr:moveBy(0, c / 5)
@@ -290,12 +300,15 @@ function pd.update()
         gfx.sprite.update()
     end
 
-    if (gameState.value == 5)
+   if (gameState.value == 5)
     then
         -- Nothing else happens
 
         gfx.sprite.update()
+        gameState.value = 6
     end
+
+    pd.timer.updateTimers()
 end
 
 function DrawLegend()
